@@ -69,8 +69,14 @@ function display_grade_book()
         $output = '<div class="table-container">';
         // global $courseTotals;
         foreach ($courseTotals as $courseID => $userCourse) {
-            $courseData = get_course_data($courseID);
+            // if course is not mark complete, skip
             $post_title = get_the_title($courseID);
+            $course_marked_complete = get_post_meta($courseID, 'course_complete')[0];
+            if (!$course_marked_complete) {
+                $output .= '**لم يتم الانتهاء من حساب درجات مادة ' . $post_title;
+                continue;
+            }
+            $courseData = get_course_data($courseID);
             $output .= '<H2 class="bold center">درجات مادة ' . $post_title . '</H2>';
             // $output .= 'عدد كويزات الكورس' . count($courseData);
             // $output .= 'عدد كويزات اليوزر' . count($courseTotals[$courseID]);
