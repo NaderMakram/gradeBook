@@ -1,0 +1,78 @@
+/* Style for the table container */
+.table-container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Style for the table */
+.table {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    /* border: 2px solid #ccc; */
+    /* border-radius: 30px !important; */
+
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    border-bottom: 0px;
+    text-align: center;
+}
+
+/* Style for table headers (th) */
+th {
+    background-color: #f0e8e8; /* Pastel pink */
+    font-weight: bold;
+    text-align: right;
+    padding: 12px;
+    text-align: center;
+}
+
+/* Style for table data cells (td) */
+td, th {
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+tr:last-child{
+    /* background-color: red; */
+    border-bottom: 0px;
+}
+tr{
+    border-radius: 5px;
+}
+/* Style for alternating rows with different background colors */
+.tr:nth-child(even) {
+    background-color: #f5f1ea; /* Pastel beige */
+}
+
+
+/* Hover effect for table rows */
+.tr:hover {
+    background-color: #f0e8e8; /* Pastel green */
+}
+
+.bold{
+    font-weight: bold;
+}
+
+.center{
+    text-align: center;
+}
+.pt3{
+    padding-top: 3rem;
+}
+
+th:nth-child(1), td:nth-child(1){
+    text-align: right;
+}
+
+.final-score{
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #791c00;
+    width: auto;
+    margin-bottom: 1rem;
+}
