@@ -105,6 +105,10 @@ function display_grade_book()
                 $id = $quiz->id;
                 $score = $userCourse[$id]['points'];
                 $from = $userCourse[$id]['total_points'];
+                // fix old courses that have question points from 1 instead of 10
+                if ($from < 10) {
+                    $from = $from * 10;
+                }
                 $title = preg_replace($pattern, '', $quiz->post_title);
                 $scores_total = $scores_total + $score;
                 $from_total = $from_total + $from;
@@ -168,6 +172,9 @@ function display_grade_book()
 
             // output final score
             $output .= '<div class="final-score center">';
+            if ($attendanceWeight == 0) {
+                $passAttendance = true;
+            }
             if ($passAttendance && $courseComplete) {
                 $quizPercentage = ($scores_total / $from_total) * 100;
                 $attendancePercentage = ($usr_attendance / $course_attendance_total) * 100;
