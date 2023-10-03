@@ -9,3 +9,5 @@ this is used to specify the minimum number of attendance to pass the course.
 this is used to specify the weight of attendance points in the course final grade.
 
 all these fields should be numbers, and the location rule is in post type equal to 'course'
+
+to use the plugin use the shortcode [gradebook]
