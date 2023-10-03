@@ -73,7 +73,7 @@ function display_grade_book()
             $post_title = get_the_title($courseID);
             $course_marked_complete = get_post_meta($courseID, 'course_complete')[0];
             if (!$course_marked_complete) {
-                $output .= '**لم يتم الانتهاء من حساب درجات مادة ' . $post_title;
+                $output .= '**لم يتم الانتهاء من حساب درجات مادة ' . $post_title . '<br>';
                 continue;
             }
             $courseData = get_course_data($courseID);
