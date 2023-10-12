@@ -6,8 +6,6 @@ function get_attendance($courseID)
 {
 
     $user_id = get_current_user_id();
-    $user_id = 56;
-
     $key = 'course_attendance_' . $courseID;
     return get_user_meta($user_id, $key, true);
 }
@@ -41,4 +39,17 @@ function get_course_data($courseID)
     // Execute the query
     $results = $wpdb->get_results($sql);
     return $results;
+}
+
+
+// testing functions
+// helper testing function for printing arrays 
+function customPrintR($arr)
+{
+    ob_start(); // Start output buffering
+    echo '<pre style="direction: ltr;">';
+    print_r($arr);
+    echo '</pre>';
+    $output = ob_get_clean(); // Capture and clean the output buffer
+    return $output;
 }

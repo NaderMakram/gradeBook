@@ -2,6 +2,7 @@
 .table-container {
     max-width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
 }
 
 /* Style for the table */

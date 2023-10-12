@@ -67,6 +67,7 @@ function display_grade_book()
     {
         // output is for total output
         $output = '<div class="table-container">';
+        $output = customPrintR(get_user_meta(85, '_sfwd-quizzes', true));
         // global $courseTotals;
         foreach ($courseTotals as $courseID => $userCourse) {
             // if course is not mark complete, skip
@@ -85,7 +86,53 @@ function display_grade_book()
             $course_attendance_min = get_post_meta($courseID, 'attendance_minimum')[0];
             $course_attendance_total = get_post_meta($courseID, 'attendance_total')[0];
             $passAttendance = $usr_attendance >= $course_attendance_min;
-            $courseComplete = count($courseData) == count($courseTotals[$courseID]);
+            // filter the course data array from inappropriate quizes for the current user output (speaker or writer)
+
+
+
+            // filter course data and user course data based on user output is speaker or writer
+            $filteredCourseData = array();
+            $filteredUserCourseData = array();
+            $user_output = get_user_meta(get_current_user_id(), 'user_output')[0];
+
+            foreach ($courseData as $quiz) {
+                $id = $quiz->id;
+                $quiz_for = get_post_meta($id, 'quiz_for', true);
+                if ($user_output == $quiz_for) {
+                    $filteredCourseData[] = $quiz;
+                }
+            }
+            foreach ($courseTotals[$courseID] as $quizID => $quiz) {
+                $quiz_for = get_post_meta($quizID, 'quiz_for', true);
+                if ($user_output == $quiz_for) {
+                    $filteredUserCourseData[$quizID] = $quiz;
+                }
+            }
+
+
+
+
+
+
+            // test arrays output
+
+            // $output .= 'course complete status: ';
+            // $output .= $courseComplete;
+            // $output .= '<br>';
+
+            // $output .= 'filteredCourseData ==> ' . count($filteredCourseData) . '<br>';
+            // $output .= 'courseTotals[$courseID] ==> ' . count($filteredUserCourseData) . '<br>';
+
+            // // user arrays
+            // $output .= '$courseTotals[$courseID]';
+            // $output .= customPrintR($courseTotals[$courseID]);
+            // $output .= 'filteredUserCourseData';
+            // $output .= customPrintR($filteredUserCourseData);
+            // // course arrays
+            // $output .= 'courseData';
+            // $output .= customPrintR($courseData);
+            // $output .= 'filtered course data';
+            // $output .= customPrintR($filteredCourseData);
 
 
             // quizzesTable is for quizzes html table output, to display the final result first, then the quizzes table 
@@ -101,10 +148,12 @@ function display_grade_book()
             $from_total = 0;
             $courseTotalPercentage = '-';
             $pattern = '/\bاسئلة\b/ui';
-            foreach ($courseData as $quiz) {
+            foreach ($filteredCourseData as $quiz) {
                 $id = $quiz->id;
-                $score = $userCourse[$id]['points'];
-                $from = $userCourse[$id]['total_points'];
+
+                $user_answer_data = $filteredUserCourseData[$id];
+                $score = $user_answer_data['points'];
+                $from = $user_answer_data['total_points'];
                 // fix old courses that have question points from 1 instead of 10
                 if ($from < 10) {
                     $from = $from * 10;
@@ -124,22 +173,24 @@ function display_grade_book()
                 <tr class='tr'>
                 <td class='td'>
                 $title
-                    </td>
-                    <td class='td'>
-                    $score_to_display
-                    </td>
-                    <td class='td'>
-                    $from
-                    </td>
-                    <td class='td'>
-                    $quizPercentage
-                    </td>
+                </td>
+                <td class='td'>
+                $score_to_display
+                </td>
+                <td class='td'>
+                $from
+                </td>
+                <td class='td'>
+                $quizPercentage
+                </td>
                 </tr>";
-            }
+            };
 
 
 
 
+            // mark course complete if the user answered all questions
+            $courseComplete = (count($filteredCourseData) == count($filteredUserCourseData)) && $from_total;
 
 
 
@@ -248,16 +299,7 @@ function display_grade_book()
     }
 
 
-    // helper testing function for printing arrays 
-    function customPrintR($arr)
-    {
-        ob_start(); // Start output buffering
-        echo '<pre style="direction: ltr;">';
-        print_r($arr);
-        echo '</pre>';
-        $output = ob_get_clean(); // Capture and clean the output buffer
-        return $output;
-    }
+
 
 
     return build_output($courseTotals);
