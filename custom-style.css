@@ -1,4 +1,71 @@
-/* Style for the table container */
+/* :root{
+    --global-palette1: #4C6884;
+    --global-palette2: #506B88;
+    --global-palette3: #536E8B;
+    --global-palette4: #597491;
+    --global-palette5: #748CAB;
+    --global-palette6: #B2BCC2;
+    --global-palette7: #D1D4CD;
+    --global-palette8: #E1E0D3;
+    --global-palette9: #F0EBD8;
+    --global-palette9rgb: 255, 255, 255;
+    --global-palette-highlight: var(--global-palette1);
+    --global-palette-highlight-alt: var(--global-palette2);
+    --global-palette-highlight-alt2: var(--global-palette9);
+    --global-palette-btn-bg: var(--global-palette1);
+    --global-palette-btn-bg-hover: var(--global-palette2);
+    --global-palette-btn: var(--global-palette9);
+    --global-palette-btn-hover: var(--global-palette9);
+    --global-body-font-family: Cairo, sans-serif;
+    --global-heading-font-family: Tajawal, sans-serif;
+    --global-primary-nav-font-family: inherit;
+    --global-fallback-font: sans-serif;
+    --global-display-fallback-font: sans-serif;
+    --global-content-width: 1290px;
+    --global-content-narrow-width: 842px;
+    --global-content-edge-padding: 1.5rem;
+    --global-content-boxed-padding: 2rem;
+    --global-calc-content-width: calc(1290px - var(--global-content-edge-padding) - var(--global-content-edge-padding) );
+    --wp--style--global--content-size: var(--global-calc-content-width);
+    } */
+
+
+
+
+/* accordion styles */
+.accordion{
+    --bs-accordion-color: var(--global-palette5);
+    --bs-accordion-bg: var(--bs-body-bg);
+    --bs-accordion-transition: color 0.15s ease-in-out,background-color 0.15s ease-in-out,border-color 0.15s ease-in-out,box-shadow 0.15s ease-in-out,border-radius 0.15s ease;
+    --bs-accordion-border-color: var(--bs-border-color);
+    --bs-accordion-border-width: var(--bs-border-width);
+    --bs-accordion-border-radius: var(--bs-border-radius);
+    --bs-accordion-inner-border-radius: calc(var(--bs-border-radius) - (var(--bs-border-width)));
+    --bs-accordion-btn-padding-x: 1.25rem;
+    --bs-accordion-btn-padding-y: 1rem;
+    --bs-accordion-btn-color: var(--bs-body-color);
+    --bs-accordion-btn-bg: var(--bs-accordion-bg);
+    --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    --bs-accordion-btn-icon-width: 1.25rem;
+    --bs-accordion-btn-icon-transform: rotate(-180deg);
+    --bs-accordion-btn-icon-transition: transform 0.2s ease-in-out;
+    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23052c65'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    --bs-accordion-btn-focus-border-color: var(--global-palette8);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(253, 41, 13, 0.25);
+    --bs-accordion-body-padding-x: 1.25rem;
+    --bs-accordion-body-padding-y: 1rem;
+    --bs-accordion-active-color: var(--global-palette3);
+    --bs-accordion-active-bg: #f5ebe0 !important;
+    --global-palette-btn-bg-hover: #e4d8cbb9 !important;
+    --global-palette-btn-bg-active: #e4d8cb !important;
+    --bs-accordion-hover-color: #e4d8cb !important;
+}
+
+.accordion h2{
+    margin-bottom: 0px !important;
+}
+
+
 .table-container {
     max-width: 100%;
     overflow-x: auto;
@@ -45,8 +112,9 @@ tr{
     border-radius: 5px;
 }
 /* Style for alternating rows with different background colors */
-.tr:nth-child(even) {
+.tr.quiz-row {
     background-color: #f5f1ea; /* Pastel beige */
+    font-weight: bold;
 }
 
 
@@ -76,4 +144,33 @@ th:nth-child(1), td:nth-child(1){
     color: #791c00;
     width: auto;
     margin-bottom: 1rem;
+}
+
+.hide{
+    display: hidden;
+}
+
+
+.col{
+    text-align: center;
+}
+
+
+.comments-number{
+    color: white;
+    text-decoration: none;
+    background: #d33232;
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    display: inline-block;
+    border-radius: 50%;
+    text-align: center;
+}
+
+
+.row-header{
+    font-weight: bold;
+    background-color: #f5ebe0;
+
 }
