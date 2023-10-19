@@ -65,6 +65,11 @@ function display_grade_book()
     {
         // output is for total output
         $output = '<div class="table-container">';
+        // $curr_user = wp_get_current_user();
+        // $output .= '<H2 class="bold center">مرحبا: ' . $curr_user->display_name . '</H2>';
+
+        // $output .= customPrintR(get_audio_user_course_data());
+
         // global $user_courses_data;
         foreach ($user_courses_data as $courseID => $userCourse) {
 
@@ -247,7 +252,7 @@ function display_grade_book()
                         . make_comments_number($comments_number, $question_name) . "
                         </div>                      
                         <div class='col'>" .
-                        (($points_awarded) ? $points_awarded : make_status($status))
+                        (($status == 'graded') ? $points_awarded : '⏳')
                         . "</div>
                     </div>
         ";
@@ -330,7 +335,7 @@ function display_grade_book()
                 // $quizPercentage = 'scores total' . $scores_total . 'from total' . $from_total;
                 $attendancePercentage = ($user_attendance / $course_attendance_total) * 100;
                 $quizWeight = 1 - $attendanceWeight;
-                $percentage = ($attendancePercentage * $attendanceWeight) + (50 * $quizWeight);
+                $percentage = ($attendancePercentage * $attendanceWeight) + ($quizPercentage * $quizWeight);
 
                 // $output .= '<br>quiz percentage' . $quizPercentage;
                 // $output .= '<br>attendancePercentage' . $attendancePercentage;
@@ -339,6 +344,8 @@ function display_grade_book()
                 // $output .= '<br>';
 
                 $output .= 'النسبة المئوية التي حصلت عليها: ' . floor($percentage) . '%';
+            } elseif (!$course_marked_complete) {
+                $output .= 'لم يتم الانتهاء من حساب الدرجة الكلية ⏳';
             } elseif (!$pass_attendance && !$courseComplete) {
                 $output .= 'عذرا، لا يوجد درجة نهائية لعد اتمام كل الاختبارات';
                 $output .= '<br>';
@@ -349,8 +356,6 @@ function display_grade_book()
                 $output .= 'لم يتم الانتهاء من تصحيح كل الاسئلة ⏳';
             } elseif (!$courseComplete) {
                 $output .= 'عذرا، لا يوجد درجة نهائية لعد اتمام كل الاختبارات';
-            } elseif (!$course_marked_complete) {
-                $output .= 'لم يتم الانتهاء من حساب الدرجة الكلية ⏳';
             }
             $output .= '</div>';
 

@@ -41,20 +41,21 @@ function get_course_data($courseID)
     return $results;
 }
 
-function get_new_user_course_data()
+
+function get_audio_user_course_data()
 {
     // Get the current user ID
-    $current_user_id = get_current_user_id();
-    // $current_user_id = 60;
+    // $current_user_id = get_current_user_id();
+    $current_user_id = 104;
 
     // Define post statuses to retrieve
-    $post_statuses = array('graded', 'not_graded');
+    $post_statuses = array('published');
 
     // Query posts based on post status and current user ID
     $args = array(
         'author'         => $current_user_id,
         'post_status'    => $post_statuses,
-        'post_type'      => 'sfwd-essays', // Adjust post type if necessary
+        'post_type'      => 'sfwd-assignment',
         'posts_per_page' => -1,     // Retrieve all posts
     );
 
@@ -70,18 +71,21 @@ function get_new_user_course_data()
             // Do your stuff, e.g.
             // echo $post->post_name;
             $post_id = $post->ID;
-            $post_name = $post->post_name;
+            // $post_name = $post->post_name;
+            // $lesson = get_post($post->lesson_id);
+            // $lesson_title = $lesson->post_title;
 
             $meta_data = get_post_meta($post_id);
             $user_course_data[] = array(
                 'post_id'    => $post_id,
-                'post_title' => $post->post_title,
-                'post_content' => $post->post_content,
+                // 'post_title' => $post->post_title,
+                // 'post_content' => $post->post_content,
                 'post_status' => $post->post_status,
-                'post_name' => $post_name,
-                'quiz_post_id' => $meta_data['quiz_post_id'][0],
+                // 'post_name' => $post_name,
                 'course_id' => $meta_data['course_id'][0],
-                'meta_data'  => $meta_data,
+                'lesson_title' => $meta_data['lesson_title'][0],
+                'scored_points' => $meta_data['points'][0],
+                // 'meta_data'  => $meta_data,
             );
         }
 
