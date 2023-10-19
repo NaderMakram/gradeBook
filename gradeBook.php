@@ -156,7 +156,7 @@ function display_grade_book()
                     </div>
                 </div>";
 
-            $quizzes_table .= '<div class="accordion" id="quizzesAccordion">';
+            $quizzes_table .= "<div class='accordion' id='quizzesAccordion-" . $courseID . "'>";
             // add row for each quiz
             $scores_total = 0;
             $from_total = 0;
@@ -253,7 +253,7 @@ function display_grade_book()
         ";
                 }
                 $quiz_accordion_body .= '</div>';
-                $quizzes_table .= make_accordion_item($quiz_accordion_head, $quiz_accordion_body, $key);
+                $quizzes_table .= make_accordion_item($quiz_accordion_head, $quiz_accordion_body, $courseID);
             };
 
             // close the accordion div

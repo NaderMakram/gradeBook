@@ -141,18 +141,18 @@ function get_user_courses_data($user_id)
 
 // styling functions
 // make accordion item
-function make_accordion_item($accordion_head, $accordion_body, $key)
+function make_accordion_item($accordion_head, $accordion_body, $courseID)
 {
     // $accordion_item_id = get_accordion_item_id($id);
-    $accordion_item_id = get_accordion_item_id($key);
+    $accordion_item_id = get_random_key();
     $accordion_item = "
     <div class='accordion-item'>
     <h2 class='accordion-header'>
-      <button class='accordion-button collapsed' type='button' data-bs-toggle='collapse' data-bs-target='#collapse$key' aria-expanded='true' aria-controls='collapse$key'>
+      <button class='accordion-button collapsed' type='button' data-bs-toggle='collapse' data-bs-target='#collapse$accordion_item_id' aria-expanded='true' aria-controls='collapse$accordion_item_id'>
         $accordion_head
       </button>
     </h2>
-    <div id='collapse$key' class='accordion-collapse collapse' data-bs-parent='#quizzesAccordion'>
+    <div id='collapse$accordion_item_id' class='accordion-collapse collapse' data-bs-parent='#quizzesAccordion-$courseID'>
       <div class='accordion-body p-0'>
       $accordion_body
       </div>
@@ -160,6 +160,21 @@ function make_accordion_item($accordion_head, $accordion_body, $key)
   </div>";
 
     return $accordion_item;
+}
+
+
+function get_random_key()
+{
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomString = '';
+
+    $n = 5;
+    for ($i = 0; $i < $n; $i++) {
+        $index = rand(0, strlen($characters) - 1);
+        $randomString .= $characters[$index];
+    }
+
+    return $randomString;
 }
 
 
