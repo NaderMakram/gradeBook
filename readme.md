@@ -17,11 +17,11 @@ this is used to mark a course complete for all users, and display the final grad
 this field location rule is at post type = Course
 
 5- radio button field to specify the audiance of the quiz, with the name 'quiz_for'
-this field is used to specify weather this quiz is for speaker or writer, it needs to have choices of (writer, speaker)
+this field is used to specify weather this quiz is for speaker or writer, it needs to have choices of (writer, speaker), with the default set to writer.
 this field location rule is at post type = Quiz
 
 6- radio button field to specify the output of the user, with the name 'user_output'
-this field is used to specify weather this user is speaker or writer, it needs to have choices of (writer, speaker)
+this field is used to specify weather this user is speaker or writer, it needs to have choices of (writer, speaker), with the default set to writer.
 this field location rule is at user role = all
 
 to use the plugin use the shortcode [gradebook]

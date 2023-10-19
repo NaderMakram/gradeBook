@@ -66,7 +66,6 @@ function display_grade_book()
         // output is for total output
         $output = '<div class="table-container">';
         // global $user_courses_data;
-        // $output .= customPrintR(get_user_courses_data(85));
         foreach ($user_courses_data as $courseID => $userCourse) {
 
 
@@ -82,12 +81,9 @@ function display_grade_book()
             // if course is not mark complete, skip
             $post_title = get_the_title($courseID);
             $course_marked_complete = get_post_meta($courseID, 'course_complete')[0];
-            if (!$course_marked_complete) {
-                $output .= '**لم يتم الانتهاء من حساب درجات مادة ' . $post_title . '<br>';
-                continue;
-            }
+
             $course_data = get_course_data($courseID);
-            $output .= '<H2 class="bold center">درجات مادة ' . $post_title . '</H2>';
+            $output .= '<H2 class="bold center">درجات مادة' . '<br>' . $post_title . '</H2>';
             // $output .= 'عدد كويزات الكورس' . count($course_data);
             // $output .= 'عدد كويزات اليوزر' . count($user_courses_data[$courseID]);
             $attendanceWeight = get_post_meta($courseID, 'attendance_weight')[0] / 100;
@@ -107,6 +103,8 @@ function display_grade_book()
             foreach ($course_data as $quiz) {
                 $quizID = $quiz->id;
                 $quiz_for = get_post_meta($quizID, 'quiz_for', true);
+                // $output .= 'quiz for ==> ' . $quiz_for . '<br>';
+                // $output .= 'user output ==> ' . $user_output . '<br>';
                 if ($user_output == $quiz_for) {
                     $filtered_course_data[] = $quiz;
                 }
@@ -149,17 +147,11 @@ function display_grade_book()
 
 
             $quizzes_table .= "
-                <div class='row p-2 row-header'>
-                    <div class='col'>
+                <div class='row py-2 px-5 row-header'>
+                    <div class='col-8 text-end'>
                         الاختبار
                     </div>
-                    <div class='col'>
-                        الدرجة
-                    </div>
-                    <div class='col'>
-                        من
-                    </div>
-                    <div class='col'>
+                    <div class='col-4'>
                         النسبة
                     </div>
                 </div>";
@@ -169,9 +161,9 @@ function display_grade_book()
             $scores_total = 0;
             $from_total = 0;
             $courseTotalPercentage = '-';
-            $pattern = '/\bاسئلة\b/ui';
             foreach ($filtered_course_data as $key => $quiz) {
-                $quiz_accordion_head = "<div class='container'>";
+                $pattern = '/\bاسئلة\b/ui';
+                $quiz_accordion_head = "<div class='container p-0'>";
                 $quiz_accordion_body = "<div class='container'>";
                 $quiz_id = $quiz->id;
                 $questions_table = '';
@@ -194,19 +186,29 @@ function display_grade_book()
                     $score_to_display = '-';
                     $quizPercentage = '-';
                     $from = '-';
-                }
+                };
+
+
+                foreach ($quiz_questions as $question) {
+                    if (in_array('not_graded', $question, true)) {
+                        $quizPercentage = '⏳';
+                    }
+                };
+
                 $quiz_accordion_head .= "
-                <div class='row fw-bold'>
-                <div class='col'>
+                <div class='row fw-bold text-end'>
+                <div class='col-8 text-end'>
                 $title
-                </div>
-                <div class='col'>
-                $score_to_display
-                </div>
-                <div class='col'>
-                $from
-                </div>
-                <div class='col'>
+                </div>";
+
+                // <div class='col'>
+                // $score_to_display
+                // </div>
+                // <div class='col'>
+                // $from
+                // </div>
+                $quiz_accordion_head .= "
+                <div class='col-4 pe-4'>
                 $quizPercentage
                 </div>
                 </div>
@@ -220,36 +222,33 @@ function display_grade_book()
                     </div>
                     <div class='col'>التعليقات
                     </div>
-                    <div class='col'>الحالة
-                    </div>
                     <div class='col'>الدرجة
                     </div>
                 </div>
     ";
                 // add row for each question within a quiz
                 foreach ($quiz_questions as $question) {
+                    $pattern = '/\bالسؤال\b/ui';
                     $question_id = $question['post_id'];
                     $question_object = get_post($question_id);
                     // $output .= customPrintR($question_object);
                     $question_title = $question_object->post_title;
+                    $title = preg_replace($pattern, '', $question_title);
                     $question_name = $question_object->post_name;
                     $comments_number = get_comments_number($question_id);
                     $status = $question['status'];
                     $points_awarded = $question['points_awarded'];
                     $quiz_accordion_body .= "
-                    <div class='row p-1'>
+                    <div class='row'>
                         <div class='col'>
-                            <a href='$question_name'>$question_title</a>
+                            <a href='$question_name'>$title</a>
                         </div>
                         <div class='col'>"
                         . make_comments_number($comments_number, $question_name) . "
-                        </div>
-                        <div class='col'>"
-                        . make_status($status) . "
-                        </div>
-                        <div class='col'>
-                            $points_awarded/10
-                        </div>
+                        </div>                      
+                        <div class='col'>" .
+                        (($points_awarded) ? $points_awarded : make_status($status))
+                        . "</div>
                     </div>
         ";
                 }
@@ -264,10 +263,27 @@ function display_grade_book()
 
 
             // mark course complete if the user answered all questions
-            $courseComplete = (count($filtered_course_data) == count($filtered_user_course_data)) && $from_total;
+            $courseComplete = (count($filtered_course_data) == count($filtered_user_course_data)) && count($filtered_user_course_data) != 0;
+
+
+            // $output .= 'filtered course data';
+            // $output .= customPrintR($course_data);
+            // $output .= 'filtered user course data';
+            // $output .= customPrintR($user_courses_data);
 
 
 
+            $someQuestionsPending = false;
+            foreach ($filtered_user_course_data as $quiz) {
+                $questions = $quiz['quiz_questions'];
+                foreach ($questions as $question) {
+
+                    if (in_array('not_graded', $question, true)) {
+                        // $output .= customPrintR($question);
+                        $someQuestionsPending = true;
+                    }
+                }
+            }
 
 
 
@@ -277,26 +293,27 @@ function display_grade_book()
             }
             if ($courseComplete) {
                 $courseTotalPercentage = '%' . floor(($scores_total / $from_total) * 100);
+                // $courseTotalPercentage = 'courseTotalPercentage scores total' . $scores_total . 'from total' . $from_total;
             }
             // add row for total
-            $quizzes_table .= "
-            <div class='container'>
-                <div class='row  p-2 mt-5 row-header'>
-                <div class='col'>
-                مجموع درجات المادة
-                </div>
-                <div class='col'>
-                $scores_total
-                </div>
-                <div class='col'>
-                $from_total
-                </div>
-                <div class='col'>
-                $courseTotalPercentage
-                </div>
-                </div>
-                </div>
-                ";
+            // $quizzes_table .= "
+            // <div class='container'>
+            //     <div class='row  p-2 mt-5 border rounded row-header'>
+            //     <div class='col-4'>
+            //         المجموع
+            //     </div>
+            //     <div class='col'>
+            //     $scores_total
+            //     </div>
+            //     <div class='col'>
+            //     $from_total
+            //     </div>
+            //     <div class='col'>
+            //     $courseTotalPercentage
+            //     </div>
+            //     </div>
+            //     </div>
+            //     ";
             // $quizzes_table .= '</tbody></table>';
 
 
@@ -308,11 +325,12 @@ function display_grade_book()
             if ($attendanceWeight == 0) {
                 $pass_attendance = true;
             }
-            if ($pass_attendance && $courseComplete) {
+            if ($pass_attendance && $courseComplete && !$someQuestionsPending && $course_marked_complete) {
                 $quizPercentage = ($scores_total / $from_total) * 100;
+                // $quizPercentage = 'scores total' . $scores_total . 'from total' . $from_total;
                 $attendancePercentage = ($user_attendance / $course_attendance_total) * 100;
                 $quizWeight = 1 - $attendanceWeight;
-                $percentage = ($attendancePercentage * $attendanceWeight) + ($quizPercentage * $quizWeight);
+                $percentage = ($attendancePercentage * $attendanceWeight) + (50 * $quizWeight);
 
                 // $output .= '<br>quiz percentage' . $quizPercentage;
                 // $output .= '<br>attendancePercentage' . $attendancePercentage;
@@ -322,11 +340,17 @@ function display_grade_book()
 
                 $output .= 'النسبة المئوية التي حصلت عليها: ' . floor($percentage) . '%';
             } elseif (!$pass_attendance && !$courseComplete) {
-                $output .= 'عذرا، لا يوجد درجة نهائية لعد اتمام كل الاختبارات وعدم اتمام الحد الادنى لمرات حضور الزوم';
+                $output .= 'عذرا، لا يوجد درجة نهائية لعد اتمام كل الاختبارات';
+                $output .= '<br>';
+                $output .= 'وعدم اتمام الحد الادنى لمرات حضور الزوم';
             } elseif (!$pass_attendance) {
                 $output .= 'عذرا، لا يوجد درجة نهائية لعد اتمام الحد الأدنى لمرات حضور الزوم';
+            } elseif ($someQuestionsPending) {
+                $output .= 'لم يتم الانتهاء من تصحيح كل الاسئلة ⏳';
             } elseif (!$courseComplete) {
                 $output .= 'عذرا، لا يوجد درجة نهائية لعد اتمام كل الاختبارات';
+            } elseif (!$course_marked_complete) {
+                $output .= 'لم يتم الانتهاء من حساب الدرجة الكلية ⏳';
             }
             $output .= '</div>';
 
@@ -335,44 +359,32 @@ function display_grade_book()
 
 
             // attendance table is for user's attendance details
-            $attendanceTable = '<table class="table"><tbody>';
-            $attendanceTable .= '<tr class="tr">
-                                <th>عدد مرات حضور الزوم</th>
-                                <th>من</th>
-                                <th>الحد الأدنى للنجاح</th>
-                                <th>النسبة</th>
-                            </tr>';
+            $attendanceTable = "<div class='container mt-5 border rounded'>";
+            $attendanceTable .= "<div class='row row-header'>
+                                    <div class='col'>عدد مرات حضور الزوم</div>
+                                    <div class='col'>من</div>
+                                    <div class='col'>الحد الأدنى للنجاح</div>
+                                    <div class='col'>النسبة</div>
+                                </div>";
 
 
-
+            // user attendance info
             $attendanceTable .= "
-                            <tr class='tr bold'>
-                            <td class='td'>
-                            $user_attendance
-                            </td>
-                            <td class='td'>
-                            $course_attendance_total
-                            </td>
-                            <td class='td'>
-                            $course_attendance_min
-                            </td>
-                            <td class='td'>
-                            $courseTotalPercentage
-                            </td>
-            </tr>";
-            $attendanceTable .= '</tbody></table>';
-
-            // output user attendance data
-            if ($attendanceWeight != 0) {
-                $output .= $attendanceTable;
-            }
+                            <div class='row bold'>
+                                <div class='col'>$user_attendance</div>
+                                <div class='col'>$course_attendance_total</div>
+                                <div class='col'>$course_attendance_min</div>
+                                <div class='col'>$courseTotalPercentage</div>
+                            </div>";
+            $attendanceTable .= '</div>';
 
 
-            // $output .= '<h6>عدد مرات حضور الزوم ' . $user_attendance . ' من أصل ' . $course_attendance_total . ' ، والحد الأدنى للنجاح هو عدد  ' . $course_attendance_min . ' مرات حضور.</h6> ';
-            if ($pass_attendance && $courseComplete && $attendanceWeight != 0) {
+
+            if ($course_marked_complete && $attendanceWeight != 0) {
+                $output .= '<h6>عدد مرات حضور الزوم ' . $user_attendance . ' من أصل ' . $course_attendance_total . ' ، والحد الأدنى للنجاح هو عدد  ' . $course_attendance_min . ' مرات حضور.</h6> ';
+                // $output .= $attendanceTable;
                 $output .= '<h6>**تم احتساب نسبة درجات الحضور في هذا الكورس بنسبة  ' . $attendanceWeight * 100 . '% من الدرجة الكلية للكورس.</h6>';
             }
-            $output .= '<p class="pt3 center">**هذه هي الدرجات النهائية فقط، وللتفاصيل عن كل سؤال برجاء الرجوع للبروفايل</p>';
             $output .= '<hr>';
         };
 

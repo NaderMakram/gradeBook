@@ -68,8 +68,7 @@
 
 .table-container {
     max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 /* Style for the table */
@@ -171,6 +170,11 @@ th:nth-child(1), td:nth-child(1){
 
 .row-header{
     font-weight: bold;
-    background-color: #f5ebe0;
+    background-color: #f5ebe0cc;
 
+}
+
+
+.container .row:nth-child(2n+3){
+    background-color: rgba(245, 235, 224, 0.25);
 }

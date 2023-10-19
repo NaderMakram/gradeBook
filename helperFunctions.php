@@ -41,6 +41,57 @@ function get_course_data($courseID)
     return $results;
 }
 
+function get_new_user_course_data()
+{
+    // Get the current user ID
+    $current_user_id = get_current_user_id();
+    // $current_user_id = 60;
+
+    // Define post statuses to retrieve
+    $post_statuses = array('graded', 'not_graded');
+
+    // Query posts based on post status and current user ID
+    $args = array(
+        'author'         => $current_user_id,
+        'post_status'    => $post_statuses,
+        'post_type'      => 'sfwd-essays', // Adjust post type if necessary
+        'posts_per_page' => -1,     // Retrieve all posts
+    );
+
+    $query = new WP_Query($args);
+
+    $user_course_data = array();
+
+    // Loop through the retrieved posts
+    if ($query->have_posts()) {
+        $posts = $query->posts;
+
+        foreach ($posts as $post) {
+            // Do your stuff, e.g.
+            // echo $post->post_name;
+            $post_id = $post->ID;
+            $post_name = $post->post_name;
+
+            $meta_data = get_post_meta($post_id);
+            $user_course_data[] = array(
+                'post_id'    => $post_id,
+                'post_title' => $post->post_title,
+                'post_content' => $post->post_content,
+                'post_status' => $post->post_status,
+                'post_name' => $post_name,
+                'quiz_post_id' => $meta_data['quiz_post_id'][0],
+                'course_id' => $meta_data['course_id'][0],
+                'meta_data'  => $meta_data,
+            );
+        }
+
+        wp_reset_postdata();
+    }
+
+    return $user_course_data;
+}
+
+
 function get_user_courses_data($user_id)
 {
 
@@ -158,7 +209,8 @@ function make_status($status)
         case "graded":
             return "تم التصحيح";
         case "not_graded":
-            return "لم يتم التصحيح بعد";
+            // return "لم يتم التصحيح بعد";
+            return "⏳";
         default:
             return $status;
     }
