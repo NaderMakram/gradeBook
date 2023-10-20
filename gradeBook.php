@@ -248,10 +248,10 @@ function display_grade_book()
                     $quiz_accordion_body .= "
                     <div class='row'>
                         <div class='col'>
-                            <a href='$question_name'>$title</a>
+                            <a href='/essay/$question_name'>$title</a>
                         </div>
                         <div class='col'>"
-                        . make_comments_number($comments_number, $question_name) . "
+                        . make_comments_number($comments_number, $question_name, 'essay') . "
                         </div>                      
                         <div class='col'>" .
                         (($status == 'graded') ? $points_awarded : '⏳')
@@ -453,7 +453,7 @@ function display_grade_book()
                         $audio_questions_table .= "
                     <div class='row align-items-center'>
                     <div class='col'> $question_title </div>
-                    <div class='col'>" . make_comments_number($comments_number, $file_name) . " </div>                      
+                    <div class='col'>" . make_comments_number($comments_number, $file_name, 'assignment') . " </div>                      
                     <div class='col'>" . $points_to_display . "</div>
                     </div>";
                     };

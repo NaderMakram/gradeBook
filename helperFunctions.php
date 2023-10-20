@@ -256,11 +256,12 @@ function get_random_key()
 // }
 
 
-function make_comments_number($comments_number, $question_name)
+function make_comments_number($comments_number, $question_name, $middle_part)
 {
     $return_value = '';
     if ($comments_number != 0) {
-        $return_value .= "<a class='comments-number' href='$question_name'>$comments_number</a>";
+
+        $return_value .= "<a class='comments-number' href='/$middle_part/$question_name'>$comments_number</a>";
     } else {
         $return_value .= $comments_number;
     }
