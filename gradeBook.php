@@ -22,7 +22,7 @@ function display_grade_book()
 {
     // get and filter quiz data for current user
     $user_id = get_current_user_id();
-    // $user_id = 56;
+    // $user_id = 60;
     // $meta_key = '_sfwd-quizzes';
 
     // $quizzesData = get_user_meta($user_id, $meta_key, true);
@@ -68,7 +68,11 @@ function display_grade_book()
         // $curr_user = wp_get_current_user();
         // $output .= '<H2 class="bold center">مرحبا: ' . $curr_user->display_name . '</H2>';
 
-        // $output .= customPrintR(get_audio_user_course_data());
+
+
+
+        // $output .= 'user_course_data';
+        // $output .= customPrintR(get_user_courses_data(60));
 
         // global $user_courses_data;
         foreach ($user_courses_data as $courseID => $userCourse) {
@@ -137,8 +141,7 @@ function display_grade_book()
             // user arrays
             // $output .= '$user_courses_data[$courseID]';
             // $output .= customPrintR($user_courses_data[$courseID]);
-            // $output .= 'filtered_user_course_data';
-            // $output .= customPrintR($filtered_user_course_data);
+
             // course arrays
             // $output .= 'course_data';
             // $output .= customPrintR($course_data);
@@ -229,8 +232,7 @@ function display_grade_book()
                     </div>
                     <div class='col'>الدرجة
                     </div>
-                </div>
-    ";
+                </div>";
                 // add row for each question within a quiz
                 foreach ($quiz_questions as $question) {
                     $pattern = '/\bالسؤال\b/ui';
@@ -254,8 +256,7 @@ function display_grade_book()
                         <div class='col'>" .
                         (($status == 'graded') ? $points_awarded : '⏳')
                         . "</div>
-                    </div>
-        ";
+                    </div>";
                 }
                 $quiz_accordion_body .= '</div>';
                 $quizzes_table .= make_accordion_item($quiz_accordion_head, $quiz_accordion_body, $courseID);
@@ -395,7 +396,89 @@ function display_grade_book()
 
         $output .= '</div>';
 
-        return $output;
+        // ////////////////
+        // end of quizzes output
+        // ////////////////
+
+
+
+        // if suer has old qudio assignments
+        $user_old_assignments = get_user_meta(get_current_user_id(), 'old_assignments')[0];
+        $audio_output = '';
+        if ($user_old_assignments == 'yes') {
+
+            $audio_output .= '<div>';
+
+            $user_audio_assignments = get_audio_assignment_user_course_data();
+            // $audio_output .= customPrintR(get_course_data(273));
+
+            foreach ($user_audio_assignments as $course_id => $user_course) {
+                $audio_questions_table = "<div class='container'>";
+
+                $audio_course_data = get_audio_course_data($course_id);
+                // $audio_questions_table = customPrintR($audio_course_data);
+
+
+                $audio_questions_table .= "
+                    <div class='row p-2 row-header'>
+                        <div class='col'>السؤال</div>
+                        <div class='col'>التعليقات</div>
+                        <div class='col'>الدرجة</div>
+                    </div>";
+
+                $total_from = count($audio_course_data) * 10;
+                $total_course_points = 0;
+                foreach ($user_course as $question) {
+                    // $total_course_points = $total_course_points + $question['scored_points'];
+                    // $audio_questions_table .= $question['lesson_title'] . $question['scored_points'] . '<br>';
+                    $question_id = $question['post_id'];
+                    $question_title = $question['lesson_title'];
+                    $scored_points = $question['scored_points'];
+                    $comments_number = get_comments_number($question_id);
+                    if (($scored_points > 0 && $scored_points <= 10)) {
+                        $points_to_display  = $scored_points;
+                        $total_course_points += $scored_points;
+                    } elseif ($scored_points == 'pending') {
+                        $points_to_display  = '⏳';
+                    } else {
+                        $total_course_points += $scored_points;
+                        $points_to_display  = 0;
+                    }
+
+
+
+                    $audio_questions_table .= "
+                        <div class='row'>
+                            <div class='col'> $question_title </div>
+                            <div class='col'>" . make_comments_number($comments_number, $question_title) . " </div>                      
+                            <div class='col'>" . $points_to_display . "</div>
+                        </div>";
+                };
+                $audio_questions_result = '<div class="final-score center">';
+                $audio_questions_result .= '<H2 class="bold center">درجات مادة' . '<br>' . get_the_title($course_id) . '</H2>';
+
+                $audio_questions_result .= 'النسبة المئوية التي حصلت عليها: ' . floor(($total_course_points / $total_from) * 100) . '%';
+                // $audio_questions_result .= customPrintR(get_user_meta(104, 'old_assignments'));
+
+
+
+
+                $audio_questions_result .= '</div>';
+
+
+
+                $audio_output .= $audio_questions_result . $audio_questions_table;
+                $audio_output .= '</div>';
+            }
+
+
+
+
+
+
+            $audio_output .= '</div>';
+        }
+        return  $audio_output . $output;
     }
 
 

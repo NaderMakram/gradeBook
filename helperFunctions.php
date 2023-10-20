@@ -42,11 +42,11 @@ function get_course_data($courseID)
 }
 
 
-function get_audio_user_course_data()
+function get_audio_assignment_user_course_data()
 {
     // Get the current user ID
-    // $current_user_id = get_current_user_id();
-    $current_user_id = 104;
+    $current_user_id = get_current_user_id();
+    // $current_user_id = 41;
 
     // Define post statuses to retrieve
     $post_statuses = array('published');
@@ -85,14 +85,60 @@ function get_audio_user_course_data()
                 'course_id' => $meta_data['course_id'][0],
                 'lesson_title' => $meta_data['lesson_title'][0],
                 'scored_points' => $meta_data['points'][0],
-                // 'meta_data'  => $meta_data,
+                'meta_data'  => $meta_data,
             );
         }
 
         wp_reset_postdata();
     }
 
-    return $user_course_data;
+
+
+
+    $arranged_user_courses_data = [];
+
+    // Loop through the quizzes of each user
+    foreach ($user_course_data as $question) {
+        // Check if the "has_graded" key is set to true
+        $question_id = $question['post_id']; // int
+        $course_id = $question['course_id']; // int
+        $scored_points = $question['scored_points']; // int
+
+        // Initialize course-specific variables if not already initialized
+        if (!isset($arranged_user_courses_data[$course_id])) {
+            $arranged_user_courses_data[$course_id] = [];
+        }
+        // if quiz alreade exist, find out the quiz with higher 'scored_points' to add
+        if (isset($arranged_user_courses_data[$course_id][$question_id])) {
+            // if the alreade existing quiz has lower score, add the new one instead
+            if ($arranged_user_courses_data[$course_id][$question_id]['scored_points'] < $scored_points) {
+                $arranged_user_courses_data[$course_id][$question_id] = $question;
+            }
+        } else {
+            $arranged_user_courses_data[$course_id][$question_id] = $question;
+        }
+    }
+    return $arranged_user_courses_data;
+}
+
+function get_audio_course_data($course_id)
+{
+    $args = array(
+        'post_status'    => 'publish',
+        'post_type'      => 'sfwd-lessons',
+        'posts_per_page' => -1,     // Retrieve all posts
+    );
+    $course_lessons = get_posts($args);
+    $filtered_lessons = array();
+    foreach ($course_lessons as $lesson) {
+        $lesson_id = $lesson->ID;
+        $lesson_audio_enabled = get_post_meta($lesson_id, 'assignment_enabled_audio', true);
+        $lesson_course_id = get_post_meta($lesson_id, 'course_id', true);
+        if ($lesson_audio_enabled && $lesson_course_id == $course_id) {
+            $filtered_lessons[] = $lesson;
+        }
+    }
+    return $filtered_lessons;
 }
 
 
@@ -182,31 +228,31 @@ function get_random_key()
 }
 
 
-function get_accordion_item_id($id)
-{
-    $accordion_item_id = 'collapse';
-    switch ($id) {
-        case "0":
-            $accordion_item_id .= 'One';
-        case "1":
-            $accordion_item_id .= 'Two';
-        case "2":
-            $accordion_item_id .= 'Three';
-        case "3":
-            $accordion_item_id .= 'Four';
-        case "4":
-            $accordion_item_id .= 'Five';
-        case "5":
-            $accordion_item_id .= 'Six';
-        case "6":
-            $accordion_item_id .= 'Seven';
-        case "7":
-            $accordion_item_id .= 'Eight';
-        case "8":
-            $accordion_item_id .= 'Nine';
-    }
-    return $accordion_item_id;
-}
+// function get_accordion_item_id($id)
+// {
+//     $accordion_item_id = 'collapse';
+//     switch ($id) {
+//         case "0":
+//             $accordion_item_id .= 'One';
+//         case "1":
+//             $accordion_item_id .= 'Two';
+//         case "2":
+//             $accordion_item_id .= 'Three';
+//         case "3":
+//             $accordion_item_id .= 'Four';
+//         case "4":
+//             $accordion_item_id .= 'Five';
+//         case "5":
+//             $accordion_item_id .= 'Six';
+//         case "6":
+//             $accordion_item_id .= 'Seven';
+//         case "7":
+//             $accordion_item_id .= 'Eight';
+//         case "8":
+//             $accordion_item_id .= 'Nine';
+//     }
+//     return $accordion_item_id;
+// }
 
 
 function make_comments_number($comments_number, $question_name)
@@ -222,18 +268,18 @@ function make_comments_number($comments_number, $question_name)
 }
 
 
-function make_status($status)
-{
-    switch ($status) {
-        case "graded":
-            return "تم التصحيح";
-        case "not_graded":
-            // return "لم يتم التصحيح بعد";
-            return "⏳";
-        default:
-            return $status;
-    }
-}
+// function make_status($status)
+// {
+//     switch ($status) {
+//         case "graded":
+//             return "تم التصحيح";
+//         case "not_graded":
+//             // return "لم يتم التصحيح بعد";
+//             return "⏳";
+//         default:
+//             return $status;
+//     }
+// }
 
 // testing functions
 // helper testing function for printing arrays 
