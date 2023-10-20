@@ -410,7 +410,7 @@ function display_grade_book()
             $audio_output .= '<div>';
 
             $user_audio_assignments = get_audio_assignment_user_course_data();
-            // $audio_output .= customPrintR(get_course_data(273));
+            // $audio_output .= customPrintR(get_audio_assignment_user_course_data());
 
             foreach ($user_audio_assignments as $course_id => $user_course) {
                 $audio_questions_table = "<div class='container'>";
@@ -434,6 +434,7 @@ function display_grade_book()
                     $question_id = $question['post_id'];
                     $question_title = $question['lesson_title'];
                     $scored_points = $question['scored_points'];
+                    $file_name = $question['file_name'];
                     $comments_number = get_comments_number($question_id);
                     if (($scored_points > 0 && $scored_points <= 10)) {
                         $points_to_display  = $scored_points;
@@ -450,7 +451,7 @@ function display_grade_book()
                     $audio_questions_table .= "
                         <div class='row'>
                             <div class='col'> $question_title </div>
-                            <div class='col'>" . make_comments_number($comments_number, $question_title) . " </div>                      
+                            <div class='col'>" . make_comments_number($comments_number, $file_name) . " </div>                      
                             <div class='col'>" . $points_to_display . "</div>
                         </div>";
                 };

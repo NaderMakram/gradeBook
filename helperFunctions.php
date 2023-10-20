@@ -85,6 +85,7 @@ function get_audio_assignment_user_course_data()
                 'course_id' => $meta_data['course_id'][0],
                 'lesson_title' => $meta_data['lesson_title'][0],
                 'scored_points' => $meta_data['points'][0],
+                'file_name' => $meta_data['file_name'][0],
                 'meta_data'  => $meta_data,
             );
         }
