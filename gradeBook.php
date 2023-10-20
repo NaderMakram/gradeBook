@@ -413,63 +413,66 @@ function display_grade_book()
             // $audio_output .= customPrintR(get_audio_assignment_user_course_data());
 
             foreach ($user_audio_assignments as $course_id => $user_course) {
-                $audio_questions_table = "<div class='container'>";
 
                 $audio_course_data = get_audio_course_data($course_id);
-                // $audio_questions_table = customPrintR($audio_course_data);
 
+                if (count($audio_course_data) > 0) {
 
-                $audio_questions_table .= "
+                    $audio_questions_table = "<div class='container'>";
+
+                    // $audio_questions_table = customPrintR($audio_course_data);
+                    $audio_questions_table .= "
                     <div class='row p-2 row-header'>
-                        <div class='col'>السؤال</div>
-                        <div class='col'>التعليقات</div>
-                        <div class='col'>الدرجة</div>
+                    <div class='col'>السؤال</div>
+                    <div class='col'>التعليقات</div>
+                    <div class='col'>الدرجة</div>
                     </div>";
 
-                $total_from = count($audio_course_data) * 10;
-                $total_course_points = 0;
-                foreach ($user_course as $question) {
-                    // $total_course_points = $total_course_points + $question['scored_points'];
-                    // $audio_questions_table .= $question['lesson_title'] . $question['scored_points'] . '<br>';
-                    $question_id = $question['post_id'];
-                    $question_title = $question['lesson_title'];
-                    $scored_points = $question['scored_points'];
-                    $file_name = $question['file_name'];
-                    $comments_number = get_comments_number($question_id);
-                    if (($scored_points > 0 && $scored_points <= 10)) {
-                        $points_to_display  = $scored_points;
-                        $total_course_points += $scored_points;
-                    } elseif ($scored_points == 'pending') {
-                        $points_to_display  = '⏳';
-                    } else {
-                        $total_course_points += $scored_points;
-                        $points_to_display  = 0;
-                    }
+                    $total_from = count($audio_course_data) * 10;
+                    $total_course_points = 0;
+                    foreach ($user_course as $question) {
+                        // $total_course_points = $total_course_points + $question['scored_points'];
+                        // $audio_questions_table .= $question['lesson_title'] . $question['scored_points'] . '<br>';
+                        $question_id = $question['post_id'];
+                        $question_title = $question['lesson_title'];
+                        $scored_points = $question['scored_points'];
+                        $file_name = $question['file_name'];
+                        $comments_number = get_comments_number($question_id);
+                        if (($scored_points > 0 && $scored_points <= 10)) {
+                            $points_to_display  = $scored_points;
+                            $total_course_points += $scored_points;
+                        } elseif ($scored_points == 'pending') {
+                            $points_to_display  = '⏳';
+                        } else {
+                            $total_course_points += $scored_points;
+                            $points_to_display  = 0;
+                        }
 
 
 
-                    $audio_questions_table .= "
-                        <div class='row'>
-                            <div class='col'> $question_title </div>
-                            <div class='col'>" . make_comments_number($comments_number, $file_name) . " </div>                      
-                            <div class='col'>" . $points_to_display . "</div>
-                        </div>";
-                };
-                $audio_questions_result = '<div class="final-score center">';
-                $audio_questions_result .= '<H2 class="bold center">درجات مادة' . '<br>' . get_the_title($course_id) . '</H2>';
+                        $audio_questions_table .= "
+                    <div class='row align-items-center'>
+                    <div class='col'> $question_title </div>
+                    <div class='col'>" . make_comments_number($comments_number, $file_name) . " </div>                      
+                    <div class='col'>" . $points_to_display . "</div>
+                    </div>";
+                    };
+                    $audio_questions_result = '<div class="final-score center">';
+                    $audio_questions_result .= '<H2 class="bold center">درجات مادة' . '<br>' . get_the_title($course_id) . '</H2>';
 
-                $audio_questions_result .= 'النسبة المئوية التي حصلت عليها: ' . floor(($total_course_points / $total_from) * 100) . '%';
-                // $audio_questions_result .= customPrintR(get_user_meta(104, 'old_assignments'));
-
-
-
-
-                $audio_questions_result .= '</div>';
+                    $audio_questions_result .= 'النسبة المئوية التي حصلت عليها: ' . floor(($total_course_points / $total_from) * 100) . '%';
+                    // $audio_questions_result .= customPrintR(get_user_meta(104, 'old_assignments'));
 
 
 
-                $audio_output .= $audio_questions_result . $audio_questions_table;
-                $audio_output .= '</div>';
+
+                    $audio_questions_result .= '</div>';
+
+
+
+                    $audio_output .= $audio_questions_result . $audio_questions_table;
+                    $audio_output .= '</div>';
+                }
             }
 
 
