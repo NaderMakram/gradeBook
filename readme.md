@@ -24,4 +24,8 @@ this field location rule is at post type = Quiz
 this field is used to specify weather this user is speaker or writer, it needs to have choices of (writer, speaker), with the default set to writer.
 this field location rule is at user role = all
 
+7- radio button field for users who answered audio assignments, with the name 'old_assignments'
+this field is used to know weather this user have old audio assignmets, it needs to have choices of (yes, no), with the default set to no.
+this field location rule is at user role = all
+
 to use the plugin use the shortcode [gradebook]
