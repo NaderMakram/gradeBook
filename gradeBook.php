@@ -68,6 +68,14 @@ function display_grade_book()
         // $curr_user = wp_get_current_user();
         // $output .= '<H2 class="bold center">مرحبا: ' . $curr_user->display_name . '</H2>';
 
+        // $answer_data_serialized = (get_answer_data_by_id(224));
+        // $output .= $answer_data_serialized;
+        // $answer_data_unserialized = unserialize($answer_data_serialized);
+        // $output .= customPrintR($answer_data_unserialized);
+        // $output .= 'copied data after unserialize';
+        // $user_answers = ["1", "0"];
+
+        // displayUserAnswers($answer_data_unserialized, $user_answers);
 
 
 
@@ -109,6 +117,8 @@ function display_grade_book()
             $filtered_user_course_data = array();
             $user_output = get_user_meta(get_current_user_id(), 'user_output')[0];
 
+
+
             foreach ($course_data as $quiz) {
                 $quizID = $quiz->id;
                 $quiz_for = get_post_meta($quizID, 'quiz_for', true);
@@ -120,16 +130,24 @@ function display_grade_book()
             }
             foreach ($user_courses_data[$courseID] as $quizID => $quiz) {
                 $quiz_for = get_post_meta($quizID, 'quiz_for', true);
+                // console_log($quiz_for);
+                // console_log($user_output);
                 if ($user_output == $quiz_for) {
                     $filtered_user_course_data[$quizID] = $quiz;
                 }
             }
 
 
+            // console_log($course_data);
+            // console_log($filtered_course_data);
+            // console_log($filtered_user_course_data);
 
 
             // test arrays output
+            // $output .= customPrintR($filtered_course_data);
+            // $output .= customPrintR($user_courses_data[$courseID]);
 
+            // require_once '/home/nader/vhosts/newtest/wordpress/wp-content/plugins/sfwd-lms/includes/lib/wp-pro-quiz/lib/model/WpProQuiz_Model_AnswerTypes.php';
 
             // $output .= 'course complete status: ';
             // $output .= $courseComplete;
@@ -155,7 +173,7 @@ function display_grade_book()
 
 
             $quizzes_table .= "
-                <div class='row py-2 px-5 row-header'>
+                <div class='row align-items-center py-2 px-5 row-header'>
                     <div class='col-8 text-end'>
                         الاختبار
                     </div>
@@ -176,6 +194,9 @@ function display_grade_book()
                 $quiz_id = $quiz->id;
                 $questions_table = '';
                 $quiz_questions = $filtered_user_course_data[$quiz_id]['quiz_questions'];
+                $stat_ref_id = $filtered_user_course_data[$quiz_id]['statistic_ref_id'];
+                $chooice_user_answers = getStatisticsByRefId($stat_ref_id);
+                // console_log(getStatisticsByRefId($stat_ref_id));
 
                 $user_answer_data = $filtered_user_course_data[$quiz_id];
                 $score = $user_answer_data['scored_points'];
@@ -204,7 +225,7 @@ function display_grade_book()
                 };
 
                 $quiz_accordion_head .= "
-                <div class='row fw-bold text-end'>
+                <div class='row align-items-center fw-bold text-end'>
                 <div class='col-8 text-end'>
                 $title
                 </div>";
@@ -224,7 +245,7 @@ function display_grade_book()
                 $quiz_accordion_head .= '</div>';
 
                 $quiz_accordion_body .= "
-                <div class='row p-2 row-header'>
+                <div class='row align-items-center p-2 row-header'>
                     <div class='col'>
                         السؤال
                     </div>
@@ -233,7 +254,66 @@ function display_grade_book()
                     <div class='col'>الدرجة
                     </div>
                 </div>";
-                // add row for each question within a quiz
+
+
+                // add row for each choose question within a quiz
+                if ($stat_ref_id) {
+                    foreach ($chooice_user_answers as $answer) {
+                        // display only questions that have answer_type = single or multiple
+                        $answer_type = get_answer_type_by_question_id($answer->question_id);
+                        // console_log("answer_type");
+                        // console_log($answer_type);
+                        if ($answer_type === 'single' || $answer_type === 'multiple') {
+
+                            console_log($answer);
+                            $question_id = $answer->question_id;
+                            $question_info = getQuestionById($question_id);
+                            // $output .= customPrintR($question_info);
+                            $answer_json = json_encode($answer);
+                            $question_json = json_encode($question_info);
+
+                            $model_answer_serialized = (get_answer_data_by_id($question_id));
+                            $model_answer = unserialize($model_answer_serialized);
+
+                            $answersArray = array();
+
+                            foreach ($model_answer as $single_answer) {
+                                $theanswer = $single_answer->getAnswer();
+                                $correct = $single_answer->isCorrect();
+                                $answersArray[$theanswer] = $correct ? '1' : '0';
+                            };
+
+                            // $output .= customPrintR($answersArray);
+
+
+
+
+                            // $output .= customPrintR($model_answer);
+                            $model_answer_json = json_encode($answersArray);
+
+
+                            // $question_title = $question_object->post_title;
+                            // $question_name = $question_object->post_name;
+                            // $comments_number = get_comments_number($question_id);
+                            // $status = $question['status'];
+                            $points_awarded = $answer->points;
+                            $quiz_accordion_body .= "
+                        <div class='row align-items-center'>
+                        <div class='col open-pop'>
+                        <a data-bs-toggle='modal' data-bs-target='#exampleModal' class='text-decoration-underline' onclick='changeContent($answer_json, $question_json, $model_answer_json)'>
+                        $question_info->title
+                      </a>
+                        
+                        </div>
+                        <div class='col'>" .
+                                (($points_awarded > 0) ? '✅' : '❌')
+                                . "</div>                      
+                        <div class='col'>$points_awarded</div>
+                        </div>";
+                        }
+                    }
+                }
+                // add row for each essay question within a quiz
                 foreach ($quiz_questions as $question) {
                     $pattern = '/\bالسؤال\b/ui';
                     $question_id = $question['post_id'];
@@ -246,12 +326,12 @@ function display_grade_book()
                     $status = $question['status'];
                     $points_awarded = $question['points_awarded'];
                     $quiz_accordion_body .= "
-                    <div class='row'>
+                    <div class='row align-items-center'>
                         <div class='col'>
-                            <a href='/essay/$question_name'>$title</a>
+                            <a href='/$question_id'>$title</a>
                         </div>
                         <div class='col'>"
-                        . make_comments_number($comments_number, $question_name, 'essay') . "
+                        . make_comments_number($comments_number, $question_name) . "
                         </div>                      
                         <div class='col'>" .
                         (($status == 'graded') ? $points_awarded : '⏳')
@@ -402,6 +482,34 @@ function display_grade_book()
 
 
 
+        // ////////////////
+        // start modal
+        // ////////////////
+        $output .= '
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              </div>
+              <div class="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">غلق</button>
+              </div>
+            </div>
+          </div>
+        </div>';
+
+
+        // ////////////////
+        // end modal
+        // ////////////////
+
+
+
         // if suer has old qudio assignments
         $user_old_assignments = get_user_meta(get_current_user_id(), 'old_assignments')[0];
         $audio_output = '';
@@ -453,7 +561,7 @@ function display_grade_book()
                         $audio_questions_table .= "
                     <div class='row align-items-center'>
                     <div class='col'> $question_title </div>
-                    <div class='col'>" . make_comments_number($comments_number, $file_name, 'assignment') . " </div>                      
+                    <div class='col'>" . make_comments_number($comments_number, $file_name) . " </div>                      
                     <div class='col'>" . $points_to_display . "</div>
                     </div>";
                     };
@@ -523,6 +631,18 @@ function enqueue_custom_css()
     // Enqueue the custom CSS file
     wp_enqueue_style('custom-style', $plugin_url . 'custom-style.css');
 }
-
 // Hook the function to a WordPress action
 add_action('wp_enqueue_scripts', 'enqueue_custom_css');
+
+// my js
+// Your main plugin PHP file
+
+function enqueue_custom_script()
+{
+    // Enqueue your script
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('custom-gradebook-script', plugin_dir_url(__FILE__) . 'custom-gradebook-script.js', array('jquery'), '1.0.0', true);
+}
+
+// Hook the enqueue function to the appropriate action
+add_action('wp_enqueue_scripts', 'enqueue_custom_script');

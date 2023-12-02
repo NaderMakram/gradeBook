@@ -142,11 +142,36 @@ function get_audio_course_data($course_id)
     return $filtered_lessons;
 }
 
+function get_answer_data_by_id($question_id)
+{
+    global $wpdb;
+
+    // Your table name
+    $table_name = $wpdb->prefix . 'learndash_pro_quiz_question';
+
+    // Query to get the answer_data value
+    $query = $wpdb->prepare("SELECT answer_data FROM $table_name WHERE id = %d", $question_id);
+
+    // Get the result from the database
+    $result = $wpdb->get_var($query);
+
+    // Return the result
+    return $result;
+}
 
 function get_user_courses_data($user_id)
 {
 
     $all_user_quizzes = get_user_meta($user_id, '_sfwd-quizzes', true);
+    console_log($all_user_quizzes);
+
+    // require_once '/home/nader/vhosts/newtest/wordpress/wp-content/plugins/sfwd-lms/includes/lib/wp-pro-quiz/lib/model/WpProQuiz_Model_AnswerTypes.php';
+    // $answer_data_serialized = (get_answer_data_by_id(224));
+    // $answer_data_unserialized = unserialize($answer_data_serialized, ["allowed_classes" => true]);
+    // console_log(customPrintR($answer_data_unserialized));
+    // console_log($answer_data_unserialized);
+
+
 
     // Check if data exists
     if (empty($all_user_quizzes)) {
@@ -163,29 +188,33 @@ function get_user_courses_data($user_id)
 
     // Loop through the quizzes of each user
     foreach ($all_user_quizzes as $quiz) {
-        // Check if the "has_graded" key is set to true
-        if ($quiz['has_graded']) {
-            $courseID = $quiz['course']; // int
-            $quizID = $quiz['quiz']; // int
-            $scored_points = $quiz['points']; // int
-            $total_points = $quiz['total_points']; // int
-            $quiz_questions = $quiz['graded']; // arrray
+        $courseID = $quiz['course']; // int
+        $quizID = $quiz['quiz']; // int
+        $scored_points = $quiz['points']; // int
+        $total_points = $quiz['total_points']; // int
+        $quiz_questions = $quiz['graded']; // arrray
+        $statistic_ref_id = $quiz['statistic_ref_id']; // arrray
 
-            // Initialize course-specific variables if not already initialized
-            if (!isset($user_courses_data[$courseID])) {
-                $user_courses_data[$courseID] = [];
-            }
-            // if quiz alreade exist, find out the quiz with higher 'scored_points' to add
-            if (isset($user_courses_data[$courseID][$quizID])) {
-                // if the alreade existing quiz has lower score, add the new one instead
-                if ($user_courses_data[$courseID][$quizID]['scored_points'] < $scored_points) {
-                    $user_courses_data[$courseID][$quizID] = ['scored_points' => $scored_points, 'total_points' => $total_points, 'quiz_questions' => $quiz_questions];
-                }
-            } else {
+        // Initialize course-specific variables if not already initialized
+        if (!isset($user_courses_data[$courseID])) {
+            $user_courses_data[$courseID] = [];
+        }
+        // if quiz alreade exist, find out the quiz with higher 'scored_points' to add
+        if (isset($user_courses_data[$courseID][$quizID])) {
+            // if the alreade existing quiz has lower score, add the new one instead
+            if ($user_courses_data[$courseID][$quizID]['scored_points'] < $scored_points) {
                 $user_courses_data[$courseID][$quizID] = ['scored_points' => $scored_points, 'total_points' => $total_points, 'quiz_questions' => $quiz_questions];
             }
+        } else {
+            $user_courses_data[$courseID][$quizID] = [
+                'scored_points' => $scored_points,
+                'total_points' => $total_points,
+                'quiz_questions' => $quiz_questions,
+                'statistic_ref_id' => $statistic_ref_id,
+            ];
         }
     }
+    console_log($user_courses_data);
     return $user_courses_data;
 }
 
@@ -256,18 +285,29 @@ function get_random_key()
 // }
 
 
-function make_comments_number($comments_number, $question_name, $middle_part)
+function make_comments_number($comments_number, $question_name)
 {
     $return_value = '';
     if ($comments_number != 0) {
 
-        $return_value .= "<a class='comments-number' href='/$middle_part/$question_name'>$comments_number</a>";
+        $return_value .= "<a class='comments-number' href='/$question_name'>$comments_number</a>";
     } else {
         $return_value .= $comments_number;
     }
 
     return $return_value;
 }
+
+function console_log($output, $with_script_tags = true)
+{
+    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
+        ');';
+    if ($with_script_tags) {
+        $js_code = '<script>' . $js_code . '</script>';
+    }
+    echo $js_code;
+}
+
 
 
 // function make_status($status)
@@ -293,4 +333,77 @@ function customPrintR($arr)
     echo '</pre>';
     $output = ob_get_clean(); // Capture and clean the output buffer
     return $output;
+}
+
+function displayUserAnswers($answer_data_unserialized, $user_answers)
+{
+    // Iterate through each answer
+    foreach ($answer_data_unserialized as $index => $answer) {
+        // Check if the user selected this answer
+        $user_selected = $user_answers[$index] == "1";
+
+        // Display the answer text
+        echo "Answer: " . $answer->getAnswer() . "<br>";
+
+        // Check if the user's answer is correct
+        if ($user_selected && $answer->isCorrect()) {
+            echo "Your answer is correct!<br>";
+        } elseif ($user_selected) {
+            echo "Your answer is incorrect.<br>";
+        }
+
+        echo "<br>";
+    }
+}
+
+
+function getStatisticsByRefId($ref_id)
+{
+    global $wpdb;
+
+    // Define the table name
+    $table_name = $wpdb->prefix . 'learndash_pro_quiz_statistic';
+
+    // Prepare and execute the SQL query
+    $query = $wpdb->prepare("SELECT * FROM $table_name WHERE statistic_ref_id = %d", $ref_id);
+    $results = $wpdb->get_results($query);
+
+    // Check if there are any results
+    if ($results) {
+        return $results;
+    } else {
+        return false; // No results found
+    }
+}
+
+
+function get_answer_type_by_question_id($question_id)
+{
+    global $wpdb;
+
+    $table_name = $wpdb->prefix . 'learndash_pro_quiz_question';
+
+    $query = $wpdb->prepare("SELECT answer_type FROM $table_name WHERE id = %d", $question_id);
+    $result = $wpdb->get_var($query);
+
+    return $result;
+}
+
+function getQuestionById($question_id)
+{
+    global $wpdb;
+
+    // Define the table name
+    $table_name = $wpdb->prefix . 'learndash_pro_quiz_question';
+
+    // Prepare and execute the SQL query
+    $query = $wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $question_id);
+    $question = $wpdb->get_row($query);
+
+    // Check if a result is found
+    if ($question) {
+        return $question;
+    } else {
+        return false; // No result found
+    }
 }
